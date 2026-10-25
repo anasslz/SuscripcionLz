@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cancelador de suscripciones</title>
+</head>
+<body style="margin:0;background:#fafafa">
+ 
+<!-- INICIO: copia desde aquí (en Shopify: Personalizar > Añadir sección > "Liquid personalizado") -->
+<style>
+#sc-app{--sc-ink:#14161a;--sc-mute:#6b7280;--sc-line:#e6e8ec;--sc-accent:#5b3df5;--sc-soft:#f4f2ff;--sc-red:#d92d20;--sc-green:#12805c;--sc-card:#fff;max-width:880px;margin:0 auto;padding:40px 16px 96px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--sc-ink);line-height:1.5;box-sizing:border-box}
+#sc-app *{box-sizing:border-box}
+#sc-app [hidden]{display:none!important}
+#sc-app h1{font-size:clamp(26px,5vw,38px);line-height:1.15;margin:0 0 12px;letter-spacing:-.02em}
+#sc-app .sc-lead{color:var(--sc-mute);font-size:17px;margin:0 0 28px;max-width:640px}
+#sc-app .sc-card{background:var(--sc-card);border:1px solid var(--sc-line);border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+#sc-app .sc-label{display:block;font-weight:600;margin-bottom:8px}
+#sc-app textarea{width:100%;min-height:190px;resize:vertical;border:1px solid var(--sc-line);border-radius:12px;padding:12px 14px;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--sc-ink);background:#fcfcfd}
+#sc-app textarea:focus{outline:2px solid var(--sc-accent);outline-offset:1px;border-color:transparent}
+#sc-app .sc-hint{font-size:13px;color:var(--sc-mute);margin:8px 0 0}
+#sc-app .sc-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+#sc-app .sc-btn{appearance:none;border:1px solid var(--sc-line);background:#fff;color:var(--sc-ink);border-radius:10px;padding:10px 16px;font:600 14px/1.2 inherit;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none;transition:background .15s,transform .05s}
+#sc-app .sc-btn:hover{background:#f6f7f9}
+#sc-app .sc-btn:active{transform:translateY(1px)}
+#sc-app .sc-btn:focus-visible{outline:2px solid var(--sc-accent);outline-offset:2px}
+#sc-app .sc-primary{background:var(--sc-accent);border-color:var(--sc-accent);color:#fff}
+#sc-app .sc-primary:hover{background:#4a2fe0}
+#sc-app .sc-ghost{border-color:transparent;color:var(--sc-mute)}
+#sc-app .sc-msg{margin:14px 0 0;font-size:14px;color:var(--sc-mute);min-height:1.2em}
+#sc-app .sc-msg.sc-err{color:var(--sc-red)}
+#sc-app .sc-privacy{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--sc-mute);margin:16px 0 0}
+#sc-app .sc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:28px 0 20px}
+#sc-app .sc-stat{background:var(--sc-soft);border-radius:14px;padding:16px}
+#sc-app .sc-stat span{display:block;font-size:13px;color:var(--sc-mute)}
+#sc-app .sc-stat strong{display:block;font-size:clamp(20px,4vw,28px);letter-spacing:-.02em;margin-top:2px}
+#sc-app .sc-h2{font-size:18px;margin:24px 0 12px}
+#sc-app .sc-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+#sc-app .sc-item{display:grid;grid-template-columns:44px 1fr auto;gap:6px 14px;align-items:center;background:#fff;border:1px solid var(--sc-line);border-radius:14px;padding:14px 16px;transition:border-color .15s,box-shadow .15s}
+#sc-app .sc-item.sc-marked{border-color:var(--sc-accent);box-shadow:0 0 0 3px rgba(91,61,245,.12)}
+#sc-app .sc-item.sc-off{opacity:.6}
+#sc-app .sc-avatar{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:18px}
+#sc-app .sc-name{font-weight:650;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#sc-app .sc-sub{font-size:13px;color:var(--sc-mute)}
+#sc-app .sc-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:#e7f6ef;color:var(--sc-green)}
+#sc-app .sc-badge.sc-mid{background:#fff4e0;color:#a15c00}
+#sc-app .sc-badge.sc-low{background:#f0f1f3;color:var(--sc-mute)}
+#sc-app .sc-amt{text-align:right}
+#sc-app .sc-amt strong{display:block;font-size:17px}
+#sc-app .sc-amt span{font-size:12px;color:var(--sc-mute)}
+#sc-app .sc-act{grid-column:2 / -1;display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding-top:8px;border-top:1px dashed var(--sc-line);margin-top:6px}
+#sc-app .sc-chk{display:inline-flex;gap:8px;align-items:center;font-size:14px;font-weight:600;cursor:pointer}
+#sc-app .sc-chk input{width:18px;height:18px;accent-color:var(--sc-accent)}
+#sc-app .sc-link{margin-left:auto;font-size:14px;font-weight:600;color:var(--sc-accent);text-decoration:none}
+#sc-app .sc-link:hover{text-decoration:underline}
+#sc-app .sc-save{position:sticky;bottom:16px;margin-top:20px;background:var(--sc-ink);color:#fff;border-radius:14px;padding:14px 18px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;justify-content:space-between;box-shadow:0 10px 30px rgba(16,24,40,.25)}
+#sc-app .sc-save strong{font-size:20px;color:#9ff0c9}
+#sc-app .sc-note{font-size:12px;color:var(--sc-mute);margin-top:16px}
+@media (max-width:600px){
+#sc-app .sc-stats{grid-template-columns:1fr}
+#sc-app .sc-item{grid-template-columns:40px 1fr;}
+#sc-app .sc-amt{grid-column:2;text-align:left;display:flex;gap:8px;align-items:baseline}
+#sc-app .sc-act{grid-column:1 / -1}
+#sc-app .sc-link{margin-left:0}
+}
+</style>
+ 
+<div id="sc-app">
+  <h1>Descubre qué suscripciones te están cobrando sin que lo notes</h1>
+  <p class="sc-lead">Pega los movimientos de tu banco y detectamos los cobros recurrentes: cuánto pagas al mes, al año y cómo darte de baja.</p>
+ 
+  <div class="sc-card">
+    <label class="sc-label" for="sc-input">Movimientos de tu banco</label>
+    <textarea id="sc-input" spellcheck="false" placeholder="Fecha;Concepto;Importe&#10;03/10/2026;COMPRA NETFLIX.COM;-12,99&#10;08/10/2026;RECIBO SPOTIFY;-10,99&#10;..."></textarea>
+    <p class="sc-hint">Funciona con texto copiado de tu banca online o con un CSV exportado. Cuantos más meses pegues (3 o más), mejor detecta.</p>
+    <div class="sc-actions">
+      <button type="button" class="sc-btn sc-primary" id="sc-run">Analizar movimientos</button>
+      <button type="button" class="sc-btn" id="sc-demo">Probar con ejemplo</button>
+      <label class="sc-btn" for="sc-file" style="cursor:pointer">Subir CSV</label>
+      <input type="file" id="sc-file" accept=".csv,.txt,.tsv,text/csv,text/plain" hidden>
+      <button type="button" class="sc-btn sc-ghost" id="sc-clear">Limpiar</button>
+    </div>
+    <p class="sc-msg" id="sc-msg" role="status" aria-live="polite"></p>
+    <p class="sc-privacy"><span aria-hidden="true">🔒</span><span>Todo se procesa en tu navegador. Tus movimientos no se envían a ningún servidor ni se guardan.</span></p>
+  </div>
+ 
+  <div id="sc-results" hidden>
+    <div class="sc-stats">
+      <div class="sc-stat"><span>Suscripciones activas</span><strong id="sc-st-count">0</strong></div>
+      <div class="sc-stat"><span>Gasto mensual</span><strong id="sc-st-month">0 €</strong></div>
+      <div class="sc-stat"><span>Gasto anual</span><strong id="sc-st-year">0 €</strong></div>
+    </div>
+    <h2 class="sc-h2">Cobros recurrentes detectados</h2>
+    <ul class="sc-list" id="sc-list"></ul>
+    <div class="sc-save" id="sc-save">
+      <span id="sc-save-txt">Marca las que quieras cancelar para ver cuánto ahorrarías.</span>
+      <span>Ahorro: <strong id="sc-save-amt">0 €</strong> /año</span>
+    </div>
+    <p class="sc-note">La detección es una estimación basada en la frecuencia y el importe de los cargos; revisa cada resultado. Los enlaces de baja pueden cambiar con el tiempo: si uno no funciona, usa el buscador de "Cómo cancelar".</p>
+  </div>
+</div>
+ 
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var money = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
+  var dateFmt = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  var DAY = 864e5;
+  var state = { subs: [] };
+ 
+  /* Servicios conocidos. url = página de gestión de la suscripción (null = buscador). */
+  var SERVICES = [
+    { re: /netflix/, name: 'Netflix', url: 'https://www.netflix.com/cancelplan' },
+    { re: /spotify/, name: 'Spotify', url: 'https://www.spotify.com/account/subscription/' },
+    { re: /amazon\s*prime|prime\s*video|amzn.*prime|amzn\s*digital/, name: 'Amazon Prime', url: 'https://www.amazon.es/gp/primecentral' },
+    { re: /disney/, name: 'Disney+', url: 'https://www.disneyplus.com/account' },
+    { re: /youtube/, name: 'YouTube Premium', url: 'https://www.youtube.com/paid_memberships' },
+    { re: /apple\.com\/bill|itunes|icloud|apple\s*(music|tv|one)/, name: 'Apple (suscripción)', url: 'https://support.apple.com/es-es/118428' },
+    { re: /google\s*\*?\s*(one|storage)/, name: 'Google One', url: 'https://one.google.com/settings' },
+    { re: /adobe/, name: 'Adobe', url: 'https://account.adobe.com/plans' },
+    { re: /microsoft.*(365|office)|office\s*365|msft/, name: 'Microsoft 365', url: 'https://account.microsoft.com/services' },
+    { re: /dropbox/, name: 'Dropbox', url: 'https://www.dropbox.com/account/plan' },
+    { re: /openai|chatgpt/, name: 'ChatGPT', url: null },
+    { re: /\bmax\.com|hbo/, name: 'Max (HBO)', url: null },
+    { re: /dazn/, name: 'DAZN', url: null },
+    { re: /filmin/, name: 'Filmin', url: null },
+    { re: /movistar\s*(plus|\+)/, name: 'Movistar Plus+', url: null },
+    { re: /skyshowtime|paramount|crunchyroll|rakuten/, name: 'Plataforma de streaming', url: null },
+    { re: /deezer|tidal|audible|kindle\s*unlimited/, name: 'Música / audiolibros', url: null },
+    { re: /xbox|game\s*pass|playstation|ps\s*plus|nintendo/, name: 'Suscripción de videojuegos', url: null },
+    { re: /notion|canva|linkedin|duolingo|strava|tinder|patreon|twitch/, name: 'App de suscripción', url: null },
+    { re: /glovo/, name: 'Glovo Prime', url: null },
+    { re: /uber\s*one/, name: 'Uber One', url: null },
+    { re: /basic[\s\-]*fit|anytime\s*fitness|mcfit|vivagym|holmes\s*place|gimnasio|gym/, name: 'Gimnasio', url: null }
+  ];
+ 
+  var FREQ = [
+    { lo: 5, hi: 9, label: 'Semanal', days: 7, perYear: 52 },
+    { lo: 12, hi: 16, label: 'Quincenal', days: 14, perYear: 26 },
+    { lo: 26, hi: 35, label: 'Mensual', days: 30, perYear: 12 },
+    { lo: 56, hi: 65, label: 'Bimestral', days: 61, perYear: 6 },
+    { lo: 84, hi: 97, label: 'Trimestral', days: 91, perYear: 4 },
+    { lo: 170, hi: 195, label: 'Semestral', days: 182, perYear: 2 },
+    { lo: 350, hi: 380, label: 'Anual', days: 365, perYear: 1 }
+  ];
+ 
+  var STOP = /\b(compra|pago|movil|con|tarjeta|tarj|recibo|adeudo|domiciliacion|domiciliado|cargo|sepa|trf|transferencia|visa|mastercard|debito|credito|online|pos|ref|num|numero|fecha|el|de|del|la|en|com|es|www|ltd|sl|sa)\b/g;
+ 
+  function norm(s) { return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+  function titleCase(s) { return s.replace(/\b\w/g, function (c) { return c.toUpperCase(); }); }
+  function median(a) { var b = a.slice().sort(function (x, y) { return x - y; }); var m = Math.floor(b.length / 2); return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; }
+ 
+  function merchantKey(desc) {
+    var n = norm(desc), i;
+    for (i = 0; i < SERVICES.length; i++) {
+      if (SERVICES[i].re.test(n)) return { key: 'svc:' + SERVICES[i].name, name: SERVICES[i].name, svc: SERVICES[i] };
+    }
+    var c = n.replace(/https?:\/\/\S+/g, ' ').replace(/[^a-z\s]/g, ' ').replace(STOP, ' ').replace(/\s+/g, ' ').trim();
+    var words = c.split(' ').filter(function (w) { return w.length > 1; }).slice(0, 3);
+    if (!words.length) return null;
+    var name = words.join(' ');
+    return { key: 'u:' + name, name: titleCase(name), svc: null };
+  }
+ 
+  /* ---------- Lectura de líneas ---------- */
+  var DRE = /(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})|(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4}|\d{2})/;
+  function findDate(line) {
+    var m = DRE.exec(line);
+    if (!m) return null;
+    var y, mo, d;
+    if (m[1]) { y = +m[1]; mo = +m[2]; d = +m[3]; }
+    else { d = +m[4]; mo = +m[5]; y = +m[6]; if (y < 100) y += 2000; }
+    if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+    return { date: new Date(Date.UTC(y, mo - 1, d)), text: m[0] };
+  }
+ 
+  function parseAmount(s) {
+    s = String(s).replace(/\u2212/g, '-');
+    var neg = s.indexOf('-') >= 0 || /^\(.+\)$/.test(s.trim());
+    var t = s.replace(/[^0-9.,]/g, '');
+    if (!t) return NaN;
+    var lc = t.lastIndexOf(','), ld = t.lastIndexOf('.'), dec = null;
+    if (lc > -1 && ld > -1) dec = lc > ld ? ',' : '.';
+    else if (lc > -1) dec = (t.length - lc - 1 <= 2 && t.split(',').length === 2) ? ',' : null;
+    else if (ld > -1) dec = (t.length - ld - 1 <= 2 && t.split('.').length === 2) ? '.' : null;
+    if (dec === ',') t = t.replace(/\./g, '').replace(',', '.');
+    else if (dec === '.') t = t.replace(/,/g, '');
+    else t = t.replace(/[.,]/g, '');
+    var v = parseFloat(t);
+    return neg ? -v : v;
+  }
+ 
+  function csvSplit(s) {
+    var out = [], cur = '', q = false, i, ch;
+    for (i = 0; i < s.length; i++) {
+      ch = s.charAt(i);
+      if (ch === '"') q = !q;
+      else if (ch === ',' && !q) { out.push(cur); cur = ''; }
+      else cur += ch;
+    }
+    out.push(cur);
+    return out;
+  }
+ 
+  var AMT_FIELD = /^[+\-\u2212(]?\s*\d[\d.,\s]*\s*(?:€|eur)?\)?$/i;
+  var HAS_DEC = /[.,]\d{1,2}\s*(?:€|eur)?\)?$/i;
+ 
+  function parseLine(line) {
+    var d = findDate(line);
+    if (!d) return null;
+    var rest = line.replace(d.text, ' ');
+    var fields = null, amount = NaN, desc = '';
+    if (/[\t;]/.test(rest)) fields = rest.split(/[\t;]/);
+    else if (rest.indexOf('"') >= 0 || ((rest.match(/,/g) || []).length >= 2 && !/\d,\d{1,2}(?!\d)/.test(rest))) fields = csvSplit(rest);
+ 
+    if (fields) {
+      var nums = [], descs = [];
+      fields.forEach(function (f) {
+        f = f.trim();
+        if (!f) return;
+        if (AMT_FIELD.test(f)) nums.push(f); else descs.push(f);
+      });
+      var pick = nums.filter(function (f) { return HAS_DEC.test(f); })[0] || nums[0];
+      if (pick) amount = parseAmount(pick);
+      desc = descs.join(' ');
+    } else {
+      var toks = rest.match(/[+\-\u2212]?\s?\d[\d.,]*\s?(?:€|eur)?/gi) || [];
+      var p = toks.filter(function (t) { return HAS_DEC.test(t.trim()); })[0] || toks[toks.length - 1];
+      if (p) { amount = parseAmount(p); rest = rest.replace(p, ' '); }
+      desc = rest;
+    }
+    desc = desc.replace(/\s+/g, ' ').trim();
+    if (!desc || isNaN(amount) || amount === 0) return null;
+    return { date: d.date, desc: desc, amount: amount };
+  }
+ 
+  function classify(med) {
+    for (var i = 0; i < FREQ.length; i++) if (med >= FREQ[i].lo && med <= FREQ[i].hi) return FREQ[i];
+    return null;
+  }
+ 
+  /* ---------- Detección ---------- */
+  function analyze(text) {
+    var rows = [], skipped = 0;
+    text.split(/\r?\n/).forEach(function (l) {
+      if (!l.trim()) return;
+      var r = parseLine(l);
+      if (r) rows.push(r); else skipped++;
+    });
+    if (!rows.length) return { subs: [], rows: 0, charges: 0, skipped: skipped };
+ 
+    var hasNeg = rows.some(function (r) { return r.amount < 0; });
+    var ref = Math.max.apply(null, rows.map(function (r) { return r.date.getTime(); }));
+    var charges = rows.filter(function (r) { return hasNeg ? r.amount < 0 : r.amount > 0; })
+      .map(function (r) { return { date: r.date, desc: r.desc, amount: Math.abs(r.amount) }; });
+ 
+    var groups = {};
+    charges.forEach(function (c) {
+      var k = merchantKey(c.desc);
+      if (!k) return;
+      var g = groups[k.key] || (groups[k.key] = { name: k.name, svc: k.svc, items: [] });
+      g.items.push(c);
+    });
+ 
+    var subs = [];
+    Object.keys(groups).forEach(function (key) {
+      var g = groups[key];
+      var it = g.items.sort(function (a, b) { return a.date - b.date; });
+      if (it.length < 2) return;
+      var days = [], i;
+      for (i = 1; i < it.length; i++) {
+        var diff = Math.round((it[i].date - it[i - 1].date) / DAY);
+        if (diff > 0) days.push(diff);
+      }
+      if (!days.length) return;
+      var med = median(days), f = classify(med);
+      if (!f) return;
+      var cons = days.filter(function (x) { return Math.abs(x - med) <= Math.max(4, med * 0.25); }).length / days.length;
+      var amts = it.map(function (a) { return a.amount; });
+      var stable = Math.max.apply(null, amts) / Math.min.apply(null, amts) <= 1.3;
+      if (!g.svc && (cons < 0.6 || !stable)) return;
+      if (g.svc && cons < 0.4) return;
+ 
+      var last = it[it.length - 1];
+      var annual = last.amount * f.perYear;
+      var inactive = (ref - last.date.getTime()) / DAY > f.days * 1.6;
+      subs.push({
+        name: g.name, url: g.svc ? g.svc.url : null, known: !!g.svc,
+        freq: f.label, last: last.date, next: new Date(last.date.getTime() + f.days * DAY),
+        amount: last.amount, annual: annual, monthly: annual / 12, count: it.length,
+        inactive: inactive, conf: (g.svc || it.length >= 3) ? 'alta' : 'media', mark: false
+      });
+    });
+ 
+    subs.sort(function (a, b) { return (a.inactive - b.inactive) || (b.annual - a.annual); });
+    return { subs: subs, rows: rows.length, charges: charges.length, skipped: skipped };
+  }
+ 
+  /* ---------- Interfaz ---------- */
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function hue(s) { var h = 0, i; for (i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; }
+  function setMsg(t, err) { var m = $('sc-msg'); m.textContent = t; m.className = 'sc-msg' + (err ? ' sc-err' : ''); }
+ 
+  function updateTotals() {
+    var act = state.subs.filter(function (s) { return !s.inactive; });
+    $('sc-st-count').textContent = act.length;
+    $('sc-st-month').textContent = money.format(act.reduce(function (a, s) { return a + s.monthly; }, 0));
+    $('sc-st-year').textContent = money.format(act.reduce(function (a, s) { return a + s.annual; }, 0));
+    var marked = state.subs.filter(function (s) { return s.mark && !s.inactive; });
+    var save = marked.reduce(function (a, s) { return a + s.annual; }, 0);
+    $('sc-save-amt').textContent = money.format(save);
+    $('sc-save-txt').textContent = marked.length
+      ? 'Si cancelas ' + marked.length + (marked.length === 1 ? ' suscripción' : ' suscripciones') + ' ahorrarás ' + money.format(save / 12) + ' al mes.'
+      : 'Marca las que quieras cancelar para ver cuánto ahorrarías.';
+  }
+ 
+  function render() {
+    var list = $('sc-list');
+    list.innerHTML = '';
+    state.subs.forEach(function (s) {
+      var li = el('li', 'sc-item' + (s.inactive ? ' sc-off' : ''));
+      var h = hue(s.name);
+      var av = el('div', 'sc-avatar', s.name.charAt(0).toUpperCase());
+      av.style.background = 'hsl(' + h + ',75%,93%)';
+      av.style.color = 'hsl(' + h + ',55%,32%)';
+ 
+      var info = el('div');
+      var nm = el('div', 'sc-name', s.name);
+      var badge = s.inactive ? el('span', 'sc-badge sc-low', 'Posiblemente ya cancelada')
+        : el('span', 'sc-badge' + (s.conf === 'alta' ? '' : ' sc-mid'), s.conf === 'alta' ? 'Confianza alta' : 'Revisar');
+      nm.appendChild(badge);
+      var sub = s.freq + ' · ' + s.count + ' cargos · último: ' + dateFmt.format(s.last) +
+        (s.inactive ? '' : ' · próximo aprox.: ' + dateFmt.format(s.next));
+      info.appendChild(nm);
+      info.appendChild(el('div', 'sc-sub', sub));
+ 
+      var amt = el('div', 'sc-amt');
+      amt.appendChild(el('strong', null, money.format(s.amount)));
+      amt.appendChild(el('span', null, money.format(s.annual) + ' / año'));
+ 
+      var act = el('div', 'sc-act');
+      if (!s.inactive) {
+        var lab = el('label', 'sc-chk');
+        var cb = el('input'); cb.type = 'checkbox';
+        cb.addEventListener('change', function () { s.mark = cb.checked; li.classList.toggle('sc-marked', cb.checked); updateTotals(); });
+        lab.appendChild(cb); lab.appendChild(document.createTextNode('Quiero cancelarla'));
+        act.appendChild(lab);
+      }
+      var a = el('a', 'sc-link', s.url ? 'Ir a darme de baja ↗' : 'Cómo cancelar ↗');
+      a.href = s.url || ('https://www.google.com/search?q=' + encodeURIComponent('cómo cancelar suscripción ' + s.name));
+      a.target = '_blank'; a.rel = 'noopener noreferrer';
+      act.appendChild(a);
+ 
+      li.appendChild(av); li.appendChild(info); li.appendChild(amt); li.appendChild(act);
+      list.appendChild(li);
+    });
+    updateTotals();
+  }
+ 
+  function run() {
+    var text = $('sc-input').value;
+    if (!text.trim()) { setMsg('Pega primero tus movimientos o prueba con el ejemplo.', true); $('sc-results').hidden = true; return; }
+    var res = analyze(text);
+    if (!res.rows) { setMsg('No he encontrado líneas con fecha e importe. Revisa el formato (ej.: 03/10/2026;NETFLIX;-12,99).', true); $('sc-results').hidden = true; return; }
+    state.subs = res.subs;
+    if (!res.subs.length) {
+      setMsg('Analizados ' + res.charges + ' cargos y no veo cobros recurrentes. Prueba con más meses de movimientos.', false);
+      $('sc-results').hidden = true; return;
+    }
+    setMsg('Analizados ' + res.charges + ' cargos · ' + res.subs.length + ' cobros recurrentes detectados' + (res.skipped ? ' · ' + res.skipped + ' líneas ignoradas (cabeceras u otros formatos)' : '') + '.', false);
+    $('sc-results').hidden = false;
+    render();
+    $('sc-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+ 
+  /* ---------- Datos de ejemplo ---------- */
+  function demoText() {
+    var now = new Date(), out = ['Fecha;Concepto;Importe;Saldo'], m, i;
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    function add(ago, desc, amt) {
+      var d = new Date(now.getTime() - ago * DAY);
+      out.push(p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ';' + desc + ';' + amt.toFixed(2).replace('.', ',') + ';1234,56');
+    }
+    for (m = 0; m < 8; m++) {
+      add(m * 30 + 3, 'COMPRA TARJ. NETFLIX.COM', m < 2 ? -13.99 : -12.99);
+      add(m * 30 + 8, 'RECIBO SPOTIFY AB', -10.99);
+      add(m * 30 + 12, 'ADEUDO BASIC-FIT ES 4821', -24.99);
+      add(m * 30 + 15, 'APPLE.COM/BILL', -2.99);
+      add(m * 30 + 20, 'COMPRA ADOBE SYSTEMS CREATIVE CLOUD', -24.19);
+      add(m * 30 + 1, 'NOMINA EMPRESA SL', 1850);
+    }
+    for (m = 3; m < 8; m++) add(m * 30 + 6, 'DISNEY PLUS', -8.99);
+    add(20, 'AMZN PRIME MEMBERSHIP', -49.9);
+    add(385, 'AMZN PRIME MEMBERSHIP', -49.9);
+    for (i = 0; i < 24; i++) {
+      add(i * 9 + 2, 'COMPRA MERCADONA 0234 ZARAGOZA', -(18 + (i * 37) % 55) - 0.35);
+      add(i * 11 + 4, 'COMPRA CAFETERIA LA ESQUINA', -(2.2 + (i * 7) % 9) - 0.1);
+    }
+    return out.join('\n');
+  }
+ 
+  /* ---------- Eventos ---------- */
+  $('sc-run').addEventListener('click', run);
+  $('sc-demo').addEventListener('click', function () { $('sc-input').value = demoText(); run(); });
+  $('sc-clear').addEventListener('click', function () {
+    $('sc-input').value = ''; $('sc-results').hidden = true; state.subs = []; setMsg('', false);
+  });
+  $('sc-file').addEventListener('change', function (e) {
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      var txt = String(r.result);
+      if (txt.indexOf('\uFFFD') >= 0) {
+        var r2 = new FileReader();
+        r2.onload = function () { $('sc-input').value = String(r2.result); run(); };
+        r2.readAsText(f, 'windows-1252');
+      } else { $('sc-input').value = txt; run(); }
+    };
+    r.onerror = function () { setMsg('No he podido leer el archivo.', true); };
+    r.readAsText(f, 'utf-8');
+    e.target.value = '';
+  });
+})();
+</script>
+<!-- FIN: copia hasta aquí -->
+ 
+</body>
+</html>
